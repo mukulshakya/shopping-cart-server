@@ -3,18 +3,6 @@ const {
 } = require("mongoose");
 const db = require("../../../models");
 
-// exports.createBook = async (req, res) => {
-//   try {
-//     const book = await new db.BookStore(req.body).save();
-//     if (!book) return res.error({}, "Error saving book.");
-
-//     return res.success(book, "Book saved successfully.");
-//   } catch (e) {
-//     console.log({ e });
-//     return res.error(e);
-//   }
-// };
-
 const productProjection = {
   images: 1,
   features: 1,
@@ -195,6 +183,26 @@ exports.getCart = async (req, res) => {
     ]);
 
     return res.success(cart);
+  } catch (e) {
+    console.log({ e });
+    return res.error(e);
+  }
+};
+
+exports.placeOrder = async (req, res) => {
+  try {
+    const {
+      body: { products },
+      user: { _id: userId },
+    } = req;
+
+    const order = await new db.Order({ userId, products }).save();
+    if (!order) return res.error({}, "Error placing order");
+
+    const productIds = products.map(({ productId }) => ObjectId(productId));
+    await db.Cart.deleteMany({ userId, productId: { $in: productIds } });
+
+    return res.success(order, "Order placed successfully");
   } catch (e) {
     console.log({ e });
     return res.error(e);

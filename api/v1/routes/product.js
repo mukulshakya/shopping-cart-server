@@ -4,7 +4,7 @@ const { product } = require("../controllers");
 const auth = require("../../../middleware/auth");
 const validate = require("../../../middleware/validator");
 const {
-  schemas: { cartSchema },
+  schemas: { cartSchema, orderSchema },
 } = require("../../../validations");
 
 router.route("/products").get(product.getAllProducts);
@@ -16,5 +16,9 @@ router
   .post(auth, validate({ body: cartSchema }), product.addToCart)
   .put(auth, validate({ body: cartSchema }), product.removeFromCart)
   .get(auth, product.getCart);
+
+router
+  .route("/order")
+  .post(auth, validate({ body: orderSchema }), product.placeOrder);
 
 module.exports = router;

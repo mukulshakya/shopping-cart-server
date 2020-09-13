@@ -10,3 +10,13 @@ exports.cartSchema = {
   productId: Joi.objectId().required(),
   quantity: Joi.number().integer().greater(0).required(),
 };
+
+exports.orderSchema = {
+  products: Joi.array()
+    .items({
+      productId: Joi.objectId().required(),
+      quantity: Joi.number().integer().greater(0).required(),
+    })
+    .min(1)
+    .required(),
+};
