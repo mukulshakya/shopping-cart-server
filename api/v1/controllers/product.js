@@ -20,8 +20,6 @@ const productProjection = {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    console.log({ query: req.query });
-
     const { categoryId, productId, search } = req.query;
 
     const query = {};
