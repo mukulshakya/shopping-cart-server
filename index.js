@@ -25,16 +25,16 @@ mongoose
     console.log("Mongoose connection success");
 
     // SEED PRODUCTS
-    // const db = require("./models");
-    // const seedingData = require("./config/seedingData");
+    const db = require("./models");
+    const seedingData = require("./config/seedingData");
 
-    // const categories = [...seedingData.categories];
-    // const products = categories.flatMap((category) => category.getProducts());
+    const categories = [...seedingData.categories];
+    const products = categories.flatMap((category) => category.getProducts());
 
-    // await db.Category.deleteMany({});
-    // await db.Product.deleteMany({});
-    // await db.Category.insertMany(categories);
-    // await db.Product.insertMany(products);
+    await db.Category.deleteMany({});
+    await db.Product.deleteMany({});
+    await db.Category.insertMany(categories);
+    await db.Product.insertMany(products);
   })
   .catch((e) => console.log("Mongoose connection error", e.message));
 
