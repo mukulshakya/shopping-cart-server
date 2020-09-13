@@ -20,7 +20,7 @@ const productProjection = {
 
 exports.getAllProducts = async (req, res) => {
   try {
-    const { categoryId, productId, search } = req.query;
+    const { categoryId, productId, search, sort } = req.query;
 
     const query = {};
     if (categoryId) query.categoryId = ObjectId(categoryId);
@@ -37,6 +37,19 @@ exports.getAllProducts = async (req, res) => {
       Object.assign(searchQuery, { $or: searches });
     }
 
+    const sortQuery = {};
+    switch (sort) {
+      case "p-lth":
+        sortQuery.discountedPrice = 1;
+        break;
+      case "p-htl":
+        sortQuery.discountedPrice = -1;
+        break;
+      default:
+        sortQuery.createdAt = -1;
+        break;
+    }
+
     const products = await db.Product.aggregate([
       { $match: { ...query, stockCount: { $gt: 0 } } },
       {
@@ -50,6 +63,7 @@ exports.getAllProducts = async (req, res) => {
       { $unwind: "$category" },
       { $project: { ...productProjection } },
       { $match: searchQuery },
+      { $sort: { ...sortQuery } },
     ]);
     return res.success(products);
   } catch (e) {
