@@ -19,6 +19,7 @@ router
 
 router
   .route("/order")
+  .get(auth, product.getMyOrders)
   .post(auth, validate({ body: orderSchema }), product.placeOrder);
 
 module.exports = router;

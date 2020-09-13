@@ -208,3 +208,52 @@ exports.placeOrder = async (req, res) => {
     return res.error(e);
   }
 };
+
+exports.getMyOrders = async (req, res) => {
+  try {
+    const {
+      user: { _id: userId },
+    } = req;
+
+    const orders = await db.Order.aggregate([
+      { $match: { userId } },
+      { $unwind: "$products" },
+      {
+        $lookup: {
+          from: "products",
+          let: { productId: "$products.productId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$$productId", "$_id"] } } },
+            {
+              $lookup: {
+                from: "categories",
+                localField: "categoryId",
+                foreignField: "_id",
+                as: "category",
+              },
+            },
+            { $unwind: "$category" },
+            { $project: { ...productProjection } },
+          ],
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $group: {
+          _id: "$_id",
+          products: {
+            $push: { product: "$product", quantity: "$products.quantity" },
+          },
+          createdAt: { $first: "$createdAt" },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    return res.success(orders);
+  } catch (e) {
+    console.log({ e });
+    return res.error(e);
+  }
+};
