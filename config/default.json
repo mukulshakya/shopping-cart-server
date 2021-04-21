@@ -2,7 +2,7 @@
   "db": {
     "url": {
       "local": "mongodb://localhost:27017/heeko-assignment",
-      "production": "mongodb+srv://mukul:Cn2T2bTQ3X568BfN@cluster0-iidze.mongodb.net/heeko-assignment?retryWrites=true&w=majority"
+      "production": ""
     },
     "options": {
       "keepAlive": 1000,
