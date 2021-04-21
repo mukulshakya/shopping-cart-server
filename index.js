@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 
 // DB connection
 const connectionUri =
-  process.env.NODE_ENV === "production" ? url.production : url.local;
+  process.env.NODE_ENV === "production" ? process.env.MONGODB_URI : url.local;
 mongoose
   .connect(connectionUri, options)
   .then(async () => {
