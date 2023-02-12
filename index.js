@@ -3,9 +3,10 @@ const app = express();
 const path = require("path");
 const mongoose = require("mongoose");
 process.env["NODE_CONFIG_DIR"] = __dirname + "/config";
-const {
-  db: { url, options },
-} = require("config");
+const { db } = require("config");
+
+const env = process.env.NODE_ENV || "local";
+const port = process.env.PORT || 4040;
 
 // Middlewares
 app.use(require("cors")());
@@ -17,26 +18,27 @@ app.use((req, res, next) => {
 });
 
 // DB connection
-const connectionUri =
-  process.env.NODE_ENV === "production" ? process.env.MONGODB_URI : url.local;
 mongoose
-  .connect(connectionUri, options)
+  .connect(db.url[env], db.options)
   .then(async () => {
     console.log("Mongoose connection success");
 
+    // Listen to server only when connection to mongo is successful
+    app.listen(port, () => console.log("Server up on port", port));
+
     // SEED PRODUCTS
-    // if (process.env.NODE_ENV === "production") {
-    //   const db = require("./models");
-    //   const seedingData = require("./config/seedingData");
+    if (process.env.NODE_ENV === "production") {
+      const db = require("./models");
+      const seedingData = require("./config/seedingData");
 
-    //   const categories = [...seedingData.categories];
-    //   const products = categories.flatMap((category) => category.getProducts());
+      const categories = [...seedingData.categories];
+      const products = categories.flatMap((category) => category.getProducts());
 
-    //   await db.Category.deleteMany({});
-    //   await db.Product.deleteMany({});
-    //   await db.Category.insertMany(categories);
-    //   await db.Product.insertMany(products);
-    // }
+      await db.Category.deleteMany({});
+      await db.Product.deleteMany({});
+      await db.Category.insertMany(categories);
+      await db.Product.insertMany(products);
+    }
   })
   .catch((e) => console.log("Mongoose connection error", e.message));
 
@@ -51,6 +53,3 @@ app.get("/", (req, res) => {
 app.use(async (error, req, res, next) => {
   return res.error(error);
 });
-
-const port = process.env.PORT || 4040;
-app.listen(port, () => console.log("Server up on port", port));
